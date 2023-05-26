@@ -11,6 +11,7 @@ Edit toolbar and find the sending PB and set it as run and write your argument t
 ---------- ARGUMENTS ----------
 Argument: Timername;Trigger/Start;GridID as the argument for the sending ProgrammableBlock
 Where GridID is the receiving grid and Timername is the name of the timer(s) you want to activate.
+IMPORTANT: The GridID is case sensitive and needs to be exact.
 
 ---------- EXAMPLES ----------
 Example 1: Timer Hangar;Trigger;Base

@@ -42,40 +42,38 @@ namespace IngameScript
 
         // ------------------ Script Start ------------------ //
         string channel = "Channel 1", myGridID = "default";
+
         #endregion
 
+        // Previously received command. Stored here to be able to display it on screen during runtime.
         string previous_command = "";
+        // Broadcast listener to receive messages on.
         IMyBroadcastListener myBroadcastListener;
+        // LCD to display info on.
         IMyTextSurface lcd;
+        // Message to be sent. Stored here to be able to display it on screen during runtime.
+        string messageOut =  "";
+
+        // How many loops to skip.
+        int wait = 0;
+
+        int counter = 0;
+        string[] running = new string[] { "|", "/", "-", "\\" };
 
         public Program()
         {
             Echo("Running setup.");
 
-            // Load setting from Storage
-            if (Storage.Contains(";"))
+            // Load settings from Storage or CustomData for backwards compatibility
+            if (Storage.Contains(";") || Me.CustomData.Contains(";")) 
             {
-                string[] words = Storage.Split(';');
+                string[] words = Storage.Contains(";") ? Storage.Split(';') : Me.CustomData.Split(';');
                 if (words.Length == 3)
                 {
                     myGridID = words[0];
                     channel = words[1];
                     default_destination = words[2];
                 }
-            }
-            else if (Me.CustomData.Contains(";")) // Load settings from Custom Data for backwards compatibility
-            {
-                string[] words = Me.CustomData.Split(';');
-                if (words.Length == 3)
-                {
-                    myGridID = words[0];
-                    channel = words[1];
-                    default_destination = words[2];
-                }
-            }
-            else
-            {
-                Storage = myGridID + ";" + channel + ";" + default_destination;
             }
 
             // Init lcd
@@ -124,12 +122,12 @@ namespace IngameScript
 
         public void Save()
         {
-            string[] words = Storage.Split(';');
-            Storage = myGridID + ";" + channel + ";" + default_destination;
+            Storage = string.Join(";", new string[] { myGridID, channel, default_destination });
         }
 
         public void Main(string arg)
         {
+            if (wait > 0) { wait--; return; }
 
             #region Settings
             if (arg.Contains("#"))
@@ -169,8 +167,8 @@ namespace IngameScript
             }
             #endregion
 
-            #region Send command
-            string messageOut = arg;
+            #region Send broadcast
+            messageOut = arg;
             if (messageOut.Length > 5)
             {
                 // Append default destination to command if set and not present in input
@@ -184,6 +182,7 @@ namespace IngameScript
             }
             #endregion
 
+            #region Receive broadcast
             if (myBroadcastListener.HasPendingMessage)
             {
                 MyIGCMessage message = myBroadcastListener.AcceptMessage();
@@ -192,10 +191,11 @@ namespace IngameScript
                 //string messagetag = message.Tag;
                 //long sender = message.Source;
 
-                //Check if the incoming message is a error message and display it.
+                //Check if the incoming message is an error message and display it.
                 if (messagetext.Contains(";ERRORMESSAGE"))
                 {
-                    Print(messagetext.Replace(";ERRORMESSAGE", ""));
+                    Print("Error: " + messagetext.Replace(";ERRORMESSAGE", ""));
+                    wait = 3;
                 }
                 //Check if incoming message is for me.
                 else if (messagetext.Contains(";" + myGridID))
@@ -207,13 +207,7 @@ namespace IngameScript
                         // Get timer block(s) to activate
                         List<IMyTimerBlock> timers = new List<IMyTimerBlock>();
                         GridTerminalSystem.GetBlocksOfType<IMyTimerBlock>(timers);
-                        foreach (var t in timers)
-                        {
-                            if (t.CustomName != timer_action[0])
-                            {
-                                timers.Remove(t);
-                            }
-                        }
+                        timers = timers.FindAll(x => x.CustomName.ToLower() == timer_action[0].ToLower());
                        
                         string action = timer_action[1].ToLower();
 
@@ -226,9 +220,9 @@ namespace IngameScript
                         }
                         else if (action == "start" || action == "trigger")
                         {
-                            if (action == "trigger") timer_action[1] = "TriggerNow";
-                            else if (action == "start") timer_action[1] = "Start";
-                            foreach (IMyTimerBlock timer in timers) timer.ApplyAction(timer_action[1]);
+                            if (action == "trigger") action = "TriggerNow";
+                            else if (action == "start") action = "Start";
+                            foreach (IMyTimerBlock timer in timers) timer.ApplyAction(action);
                         }
                         else
                         {
@@ -242,26 +236,32 @@ namespace IngameScript
                     }
                 }
             }
+            #endregion
 
-            Print(); // Print to display and echo
 
-            Print("Grid ID : " + myGridID);
-            Print("Channel: " + channel);
+            if(messageOut != "") Print("Sent message: " + messageOut);
 
-            if (default_destination != "") Print("Default Destination: " + default_destination);
+            if (show_previous && previous_command != "")
+                Print("Previously received command:\n" + string.Join("\n", previous_command.Split(';')));
 
-            Print("Sent message: " + messageOut);
-
-            if (show_previous == true && previous_command != "")
-                Print("Previously received command:" + "\n" + previous_command.Split(';')[0] + "\n" + previous_command.Split(';')[1] + "\n" + previous_command.Split(';')[2]);
-
-            Print("\nCommands:\nGridID: #\nChannel: %\nDefault destination: &");
+            Print("\nCommands:\n - GridID: #\n - Channel: %\n - Default destination: &");
             /*
             GridID can be changed by using #new as the argument.
             Channel can be changed by using %new as the argument.
             Default destination can be changed by using &new as the argument.
             */
 
+            Print();
+
+            // Print running indicator
+            Print("Running: " + running[counter]);
+            counter++;
+            if (counter >= running.Length) counter = 0;
+
+            Print("Grid ID: " + myGridID);
+            Print("Channel: " + channel);
+
+            if (default_destination != "") Print("Default Destination: " + default_destination);
         }
 
     }
