@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29424.173
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cross grid communication [Remote Timers]", "Cross grid communication [Remote Timers].csproj", "{EEE298B1-BF61-4B5A-AA8E-C365FC05F6FA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EEE298B1-BF61-4B5A-AA8E-C365FC05F6FA}.Debug|x64.ActiveCfg = Debug|x64
+		{EEE298B1-BF61-4B5A-AA8E-C365FC05F6FA}.Debug|x64.Build.0 = Debug|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {086570A3-89A5-49A3-9310-CC74F7DB6E20}
+	EndGlobalSection
+EndGlobal
