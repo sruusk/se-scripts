@@ -45,14 +45,10 @@ namespace IngameScript
 
         #endregion
 
-        // Previously received command. Stored here to be able to display it on screen during runtime.
-        string previous_command = "";
         // Broadcast listener to receive messages on.
         IMyBroadcastListener myBroadcastListener;
         // LCD to display info on.
         IMyTextSurface lcd;
-        // Message to be sent. Stored here to be able to display it on screen during runtime.
-        string messageOut =  "";
 
         // How many loops to skip.
         int wait = 0;
@@ -168,7 +164,7 @@ namespace IngameScript
             #endregion
 
             #region Send broadcast
-            messageOut = arg;
+            string messageOut = arg;
             if (messageOut.Length > 5)
             {
                 // Append default destination to command if set and not present in input
@@ -183,6 +179,7 @@ namespace IngameScript
             #endregion
 
             #region Receive broadcast
+            string receivedCommand = "";
             if (myBroadcastListener.HasPendingMessage)
             {
                 MyIGCMessage message = myBroadcastListener.AcceptMessage();
@@ -200,7 +197,7 @@ namespace IngameScript
                 //Check if incoming message is for me.
                 else if (messagetext.Contains(";" + myGridID))
                 {
-                    previous_command = messagetext;
+                    receivedCommand = messagetext;
                     string[] timer_action = messagetext.Split(';');
                     if (timer_action.Length == 3)
                     {
@@ -241,8 +238,8 @@ namespace IngameScript
 
             if(messageOut != "") Print("Sent message: " + messageOut);
 
-            if (show_previous && previous_command != "")
-                Print("Previously received command:\n" + string.Join("\n", previous_command.Split(';')));
+            if (show_previous && receivedCommand != "")
+                Print("Previously received command:\n" + string.Join("\n", receivedCommand.Split(';')));
 
             Print("\nCommands:\n - GridID: #\n - Channel: %\n - Default destination: &");
             /*
