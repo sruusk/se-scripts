@@ -1,3 +1,4 @@
-*/MDK.paths.props
-obj/
-bin/
+MDK.paths.props
+.vs/
+obj
+bin
