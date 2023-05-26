@@ -24,32 +24,6 @@ namespace IngameScript
 
         #region mdk preserve
 
-        /*
-         * ---------- REQUIREMENTS ----------
-         * The script is used by giving the command as an argument for the sending ProgrammableBlock.
-         * The timer you want to activate can have a name of your choosing, but the command syntax is important.
-         * You need to have at least one antenna on the sending and the receiving grid.
-         * You need to have the same channel on both the sender and the receiver.
-         * 
-         * ---------- USAGE ----------
-         * To use from cockpit etc.
-         * Edit toolbar and find the sending PB and set it as run and write your argument there.
-         * 
-         * ---------- ARGUMENTS ----------
-         * Argument: Timername;Trigger/Start;GridID as the argument for the sending ProgrammableBlock
-         * Where GridID is the receiving grid and Timername is the name of the timer(s) you want to activate.
-         * 
-         * ---------- EXAMPLES ----------
-         * Example 1: Timer Hangar;Trigger;Base
-         * Example 2: Timer Hangar;Start;Base
-         * 
-         * ---------- SETTINGS ----------
-         * GridID can be changed by using #new as the argument.
-         * Channel can be changed by using %new as the argument.
-         * Default destination can be changed by using &new as the argument.
-         * Where "new" is your new GridID/Channel/Default destination
-        */
-
         // Change this to 1, if you want the info to be displayed on the small screen.
         static int lcd_id = 0;
 
@@ -64,14 +38,14 @@ namespace IngameScript
         // This is mainly for debugging.
         static bool show_previous = false;
 
+
+
+        // ------------------ Script Start ------------------ //
+        string channel = "Channel 1", myGridID = "default";
         #endregion
 
-
-        public string channel = "Channel 1";
-        public string myGridID = "default";
-        public string previous_command = "";
-        public IMyBroadcastListener myBroadcastListener;
-
+        string previous_command = "";
+        IMyBroadcastListener myBroadcastListener;
         IMyTextSurface lcd;
 
         public Program()

@@ -1,20 +1,23 @@
-﻿The script is used by giving the command as an argument for the sending ProgrammableBlock.
+﻿---------- REQUIREMENTS ----------
+The script is used by giving the command as an argument for the sending ProgrammableBlock.
 The timer you want to activate can have a name of your choosing, but the command syntax is important.
-You need to have atleast one antenna on the sending and the receiving grid.
+You need to have at least one antenna on the sending and the receiving grid.
 You need to have the same channel on both the sender and the receiver.
-It is not required to set the Grid ID on the sender if you are not going to be receiving.
 
+---------- USAGE ----------
 To use from cockpit etc.
 Edit toolbar and find the sending PB and set it as run and write your argument there.
 
-Usage: Timername;Trigger/Start;GridID as the argument for the sending ProgrammableBlock
-Where GridID is the receiving grid and Timername is the name of the timer you want to activate.
+---------- ARGUMENTS ----------
+Argument: Timername;Trigger/Start;GridID as the argument for the sending ProgrammableBlock
+Where GridID is the receiving grid and Timername is the name of the timer(s) you want to activate.
 
-Example: Timer Hangar;Trigger;Base
+---------- EXAMPLES ----------
+Example 1: Timer Hangar;Trigger;Base
+Example 2: Timer Hangar;Start;Base
 
---- Settings ---
-GridID can be changed by using #newID as an argument or by typing it into Custom Data before the first ;
-Channel can be changed by using %newChannel as an argument or by typing it into Custom Data after the first ;
-Default can be changed by using &defaultID as an argument or by typing it into Custom Data after the last ;
-
-NOTE!: After changing settings from Custom Data you need to press recompile.
+---------- SETTINGS ----------
+GridID can be changed by using #new as the argument.
+Channel can be changed by using %new as the argument.
+Default destination can be changed by using &new as the argument.
+Where "new" is your new GridID/Channel/Default destination
