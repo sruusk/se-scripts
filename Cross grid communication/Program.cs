@@ -164,15 +164,20 @@ namespace IngameScript
             #endregion
 
             #region Send broadcast
-            string messageOut = arg;
-            if (messageOut.Length > 5)
+            string[] messageOut = arg.Contains(';') ? arg.Split(';') : new string[] { };
+            if (messageOut.Length == 3 || messageOut.Length == 2)
             {
                 // Append default destination to command if set and not present in input
-                if (default_destination != "" && !arg.Contains(default_destination))
+                if (default_destination != "")
                 {
-                    if (arg.Split(';').Length == 3) { if (arg.Split(';')[2] == "") messageOut = arg + default_destination; }
-                    else if (arg.Split(';').Length == 2) messageOut = arg + ";" + default_destination;
-
+                    if(messageOut.Length == 2) messageOut.Append(default_destination);
+                    else if (messageOut[2] == "") messageOut[2] = default_destination;
+                }
+                else if (messageOut.Length == 2 || messageOut[2] == "")
+                {
+                    Print("Invalid argument");
+                    Print();
+                    return;
                 }
                 IGC.SendBroadcastMessage(channel, messageOut, TransmissionDistance.TransmissionDistanceMax);
             }
@@ -188,55 +193,54 @@ namespace IngameScript
                 //string messagetag = message.Tag;
                 //long sender = message.Source;
 
+                string[] messageParts = messagetext.Split(';');
+
                 //Check if the incoming message is an error message and display it.
-                if (messagetext.Contains(";ERRORMESSAGE"))
+                if (messageParts.Length == 2 && messageParts[1] == "ERRORMESSAGE")
                 {
-                    Print("Error: " + messagetext.Replace(";ERRORMESSAGE", ""));
+                    Print("Error: " + messageParts[0]);
                     wait = 3;
                 }
                 //Check if incoming message is for me.
-                else if (messagetext.Contains(";" + myGridID))
+                else if (messageParts.Length == 3 && messageParts[2] == myGridID)
                 {
                     receivedCommand = messagetext;
-                    string[] timer_action = messagetext.Split(';');
-                    if (timer_action.Length == 3)
-                    {
-                        // Get timer block(s) to activate
-                        List<IMyTimerBlock> timers = new List<IMyTimerBlock>();
-                        GridTerminalSystem.GetBlocksOfType<IMyTimerBlock>(timers);
-                        timers = timers.FindAll(x => x.CustomName.ToLower() == timer_action[0].ToLower());
-                       
-                        string action = timer_action[1].ToLower();
 
-                        if (timers.Count == 0)
-                        {
-                            string timerNotFound = "Timer not found!";
-                            Print(timerNotFound);
-                            IGC.SendBroadcastMessage(channel, timerNotFound + ";ERRORMESSAGE", TransmissionDistance.TransmissionDistanceMax);
-                            return;
-                        }
-                        else if (action == "start" || action == "trigger")
-                        {
-                            if (action == "trigger") action = "TriggerNow";
-                            else if (action == "start") action = "Start";
-                            foreach (IMyTimerBlock timer in timers) timer.ApplyAction(action);
-                        }
-                        else
-                        {
-                            Print("Invalid command received!");
-                            IGC.SendBroadcastMessage(
-                                channel,
-                                "Invalid command!\nCheck that you have used the correct syntax.\nCheck that you have written Start or Trigger properly.;ERRORMESSAGE",
-                                TransmissionDistance.TransmissionDistanceMax
-                            );
-                        }
+                    // Get timer block(s) to activate
+                    List<IMyTimerBlock> timers = new List<IMyTimerBlock>();
+                    GridTerminalSystem.GetBlocksOfType<IMyTimerBlock>(timers);
+                    timers = timers.FindAll(x => x.CustomName.ToLower() == messageParts[0].ToLower());
+                       
+                    string action = messageParts[1].ToLower();
+
+                    if (timers.Count == 0)
+                    {
+                        string timerNotFound = "Timer not found!";
+                        Print(timerNotFound);
+                        IGC.SendBroadcastMessage(channel, timerNotFound + ";ERRORMESSAGE", TransmissionDistance.TransmissionDistanceMax);
+                        return;
+                    }
+                    else if (action == "start" || action == "trigger")
+                    {
+                        if (action == "trigger") action = "TriggerNow";
+                        else if (action == "start") action = "Start";
+                        foreach (IMyTimerBlock timer in timers) timer.ApplyAction(action);
+                    }
+                    else
+                    {
+                        Print("Invalid command received!");
+                        IGC.SendBroadcastMessage(
+                            channel,
+                            "Invalid command!\nCheck that you have used the correct syntax.\nCheck that you have written Start or Trigger properly.;ERRORMESSAGE",
+                            TransmissionDistance.TransmissionDistanceMax
+                        );
                     }
                 }
             }
             #endregion
 
 
-            if(messageOut != "") Print("Sent message: " + messageOut);
+            if(messageOut.Length > 1) Print("Sent message: " + string.Join(";", messageOut));
 
             if (show_previous && receivedCommand != "")
                 Print("Previously received command:\n" + string.Join("\n", receivedCommand.Split(';')));
